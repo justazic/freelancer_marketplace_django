@@ -26,7 +26,13 @@ Ushbu platforma freelancerlar va mijozlar o'rtasida ish jarayonini avtomatlashti
 
 
 ### Test Users:
+**Client**
+* username: client1
+* password: client123
 
+  **Freelancer**
+  *username: freelancer1
+  *password: freelancer123
 
 ---
 
