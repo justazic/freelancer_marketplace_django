@@ -165,8 +165,13 @@
         <p>Email yoki telefon raqamingizga yuborilgan 6 xonali kodni kiriting</p>
         
         <div class="contact-info">
-            <i class="fas fa-{% if request.session.email %}envelope{% else %}phone-alt{% endif %}"></i>
-            {{ request.session.email|default:request.session.phone_number }}
+            {% if request.session.email %}
+                <i class="fas fa-envelope"></i>
+                {{ request.session.email }}
+            {% elif request.session.phone_number %}
+                <i class="fas fa-phone-alt"></i>
+                {{ request.session.phone_number }}
+            {% endif %}
         </div>
 
         {% if error %}
