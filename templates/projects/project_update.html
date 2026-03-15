@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+
+{% block title %}Loyihani tahrirlash - {{ project.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .update-container {
+        max-width: 800px;
+        margin: 2rem auto;
+    }
+
+    .update-card {
+        background: var(--darker-blue);
+        border-radius: 20px;
+        padding: 2.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .update-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .update-header h1 {
+        font-size: 2rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .update-header p {
+        color: var(--text-secondary);
+    }
+
+    .update-header i {
+        color: var(--dark-red);
+    }
+
+    .project-info {
+        background: linear-gradient(135deg, var(--dark-blue), var(--accent-blue));
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-left: 4px solid var(--dark-red);
+    }
+
+    .project-info i {
+        font-size: 2rem;
+        color: var(--dark-red);
+    }
+
+    .project-info-text h3 {
+        color: var(--text-primary);
+        margin-bottom: 0.3rem;
+    }
+
+    .project-info-text p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.6rem;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .form-group label i {
+        color: var(--dark-red);
+        width: 22px;
+        margin-right: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        background: var(--dark-blue);
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--dark-red);
+        background: var(--darker-blue);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .readonly-field {
+        background: var(--darker-blue) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-secondary) !important;
+        cursor: not-allowed;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 1rem;
+    }
+
+    .status-badge.open {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .btn-update {
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+        color: white;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(139, 30, 30, 0.4);
+    }
+
+    .btn-cancel {
+        background: var(--dark-blue);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-cancel:hover {
+        background: var(--darker-blue);
+        color: var(--text-primary);
+        border-color: var(--dark-red);
+    }
+
+    .btn-danger {
+        background: #f44336;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #d32f2f;
+    }
+
+    .warning-message {
+        background: rgba(255, 152, 0, 0.1);
+        border-left: 4px solid #ff9800;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #ff9800;
+    }
+
+    .character-count {
+        text-align: right;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: 0.3rem;
+    }
+
+    .character-count span {
+        color: var(--dark-red);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="update-container">
+    <div class="update-card">
+        <div class="update-header">
+            <h1><i class="fas fa-edit"></i> Loyihani tahrirlash</h1>
+            <p>Loyiha ma'lumotlarini yangilang</p>
+        </div>
+
+        <div class="project-info">
+            <i class="fas fa-project-diagram"></i>
+            <div class="project-info-text">
+                <h3>{{ project.title }}</h3>
+                <p>
+                    Yaratilgan: {{ project.created_at|date:"d.m.Y" }} | 
+                    Holat: <span class="status-badge {{ project.status }}">{{ project.get_status_display }}</span>
+                </p>
+            </div>
+        </div>
+
+        {% if project.status != 'open' %}
+        <div class="warning-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Diqqat!</strong> Loyiha holati 'open' emas, shuning uchun faqat ma'lumotlarni ko'rish mumkin.
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="title">
+                    <i class="fas fa-heading"></i> Loyiha nomi
+                </label>
+                <input type="text" class="form-control" id="title" name="title" 
+                       value="{{ project.title }}" required maxlength="200"
+                       {% if project.status != 'open' %}readonly{% endif %}>
+                <div class="character-count">
+                    <span id="titleCount">{{ project.title|length }}</span>/200
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">
+                    <i class="fas fa-align-left"></i> Loyiha tavsifi
+                </label>
+                <textarea class="form-control" id="description" name="description" 
+                          {% if project.status != 'open' %}readonly{% endif %}
+                          maxlength="2000">{{ project.description }}</textarea>
+                <div class="character-count">
+                    <span id="descCount">{{ project.description|length }}</span>/2000
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="budget">
+                        <i class="fas fa-money-bill-wave"></i> Budget ($)
+                    </label>
+                    <input type="number" class="form-control" id="budget" name="budget" 
+                           value="{{ project.budget }}" min="1" step="0.01" required
+                           {% if project.status != 'open' %}readonly{% endif %}>
+                    <div class="budget-preview" style="margin-top: 0.5rem; background: var(--dark-blue); padding: 0.5rem; border-radius: 5px;">
+                        <span>Joriy budget:</span>
+                        <strong style="color: var(--dark-red);">${{ project.budget }}</strong>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deadline">
+                        <i class="fas fa-calendar-alt"></i> Deadline
+                    </label>
+                    <input type="date" class="form-control" id="deadline" name="deadline" 
+                           value="{{ project.deadline|date:'Y-m-d' }}" required
+                           {% if project.status != 'open' %}readonly{% endif %}>
+                </div>
+            </div>
+
+            {% if project.status == 'open' %}
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-update" id="submitBtn">
+                    <i class="fas fa-save"></i> Saqlash
+                </button>
+                <a href="{% url 'project_detail' project.id %}" class="btn btn-cancel">
+                    <i class="fas fa-times"></i> Bekor qilish
+                </a>
+            </div>
+            {% else %}
+            <div class="action-buttons">
+                <a href="{% url 'project_detail' project.id %}" class="btn btn-cancel">
+                    <i class="fas fa-arrow-left"></i> Orqaga qaytish
+                </a>
+            </div>
+            {% endif %}
+        </form>
+
+        {% if project.status == 'open' %}
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            <form method="POST" action="{% url 'cancel_project' project.id %}" 
+                  onsubmit="return confirm('Loyihani bekor qilishni tasdiqlaysizmi? Bu amalni ortga qaytarib bo\'lmaydi!')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" style="width: 100%;">
+                    <i class="fas fa-times-circle"></i> Loyihani bekor qilish
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Character counters for editable fields
+{% if project.status == 'open' %}
+const titleInput = document.getElementById('title');
+const descInput = document.getElementById('description');
+const titleCount = document.getElementById('titleCount');
+const descCount = document.getElementById('descCount');
+
+titleInput.addEventListener('input', function() {
+    titleCount.textContent = this.value.length;
+});
+
+descInput.addEventListener('input', function() {
+    descCount.textContent = this.value.length;
+});
+
+// Set min date for deadline
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('deadline').setAttribute('min', today);
+{% endif %}
+</script>
+{% endblock %}

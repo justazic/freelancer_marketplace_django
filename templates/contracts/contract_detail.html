@@ -1,0 +1,584 @@
+{% extends 'base.html' %}
+
+{% block title %}Shartnoma - {{ contract.project.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contract-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    @media (max-width: 968px) {
+        .contract-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Chat Section */
+    .chat-section {
+        background: var(--darker-blue);
+        border-radius: 15px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+    }
+
+    .chat-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--dark-blue), var(--accent-blue));
+        border-bottom: 2px solid var(--dark-red);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-header h2 {
+        color: var(--text-primary);
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chat-header h2 i {
+        color: var(--dark-red);
+    }
+
+    .participant-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .participant-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .participant-avatar i {
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .participant-name {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .participant-role {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: var(--dark-blue);
+    }
+
+    .message {
+        display: flex;
+        gap: 1rem;
+        max-width: 80%;
+    }
+
+    .message.sent {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+        width: 35px;
+        height: 35px;
+        background: var(--darker-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--dark-red);
+        flex-shrink: 0;
+    }
+
+    .message-avatar i {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .message-content {
+        background: var(--darker-blue);
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        position: relative;
+    }
+
+    .message.sent .message-content {
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+    }
+
+    .message.sent .message-content p {
+        color: white;
+    }
+
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.3rem;
+        font-size: 0.8rem;
+    }
+
+    .message-sender {
+        color: var(--dark-red);
+        font-weight: 600;
+    }
+
+    .message.sent .message-sender {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .message-time {
+        color: var(--text-secondary);
+        font-size: 0.7rem;
+    }
+
+    .message.sent .message-time {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .message-content p {
+        color: var(--text-primary);
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+    .chat-input {
+        padding: 1rem;
+        background: var(--dark-blue);
+        border-top: 1px solid var(--border-color);
+    }
+
+    .chat-form {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .chat-form input {
+        flex: 1;
+        padding: 0.8rem 1rem;
+        background: var(--darker-blue);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .chat-form input:focus {
+        outline: none;
+        border-color: var(--dark-red);
+    }
+
+    .chat-form button {
+        background: var(--dark-red);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8rem 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .chat-form button:hover {
+        background: var(--accent-red);
+        transform: scale(1.05);
+    }
+
+    .chat-form button i {
+        font-size: 1.1rem;
+    }
+
+    /* Contract Info Section */
+    .contract-info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .info-card {
+        background: var(--darker-blue);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .info-card h3 {
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--dark-red);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-card h3 i {
+        color: var(--dark-red);
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px dashed var(--border-color);
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .info-label i {
+        color: var(--dark-red);
+        width: 20px;
+        margin-right: 0.5rem;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .info-value.price {
+        color: var(--dark-red);
+        font-size: 1.2rem;
+    }
+
+    .participants-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .participant-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--dark-blue);
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+    }
+
+    .participant-card.client {
+        border-left: 4px solid var(--accent-blue);
+    }
+
+    .participant-card.freelancer {
+        border-left: 4px solid var(--dark-red);
+    }
+
+    .participant-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .participant-icon.client {
+        background: linear-gradient(135deg, var(--accent-blue), var(--dark-blue));
+        color: white;
+    }
+
+    .participant-icon.freelancer {
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+        color: white;
+    }
+
+    .participant-details {
+        flex: 1;
+    }
+
+    .participant-details h4 {
+        color: var(--text-primary);
+        margin-bottom: 0.2rem;
+    }
+
+    .participant-details p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-badge.active {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+        border: 1px solid #4caf50;
+    }
+
+    .status-badge.finished {
+        background: rgba(33, 150, 243, 0.2);
+        color: #2196f3;
+        border: 1px solid #2196f3;
+    }
+
+    .status-badge.cancelled {
+        background: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+        border: 1px solid #f44336;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.8rem;
+        border: none;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .btn-project {
+        background: var(--accent-blue);
+        color: white;
+    }
+
+    .btn-project:hover {
+        background: var(--dark-blue);
+    }
+
+    .btn-warning {
+        background: #ff9800;
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background: #f57c00;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contract-container">
+    <!-- Chat Section -->
+    <div class="chat-section">
+        <div class="chat-header">
+            <h2>
+                <i class="fas fa-comments"></i>
+                Chat - {{ contract.project.title }}
+            </h2>
+            <div class="participant-info">
+                <div class="participant-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div class="participant-name">
+                        {% if user == contract.client %}
+                            {{ contract.freelancer.username }}
+                        {% else %}
+                            {{ contract.client.username }}
+                        {% endif %}
+                    </div>
+                    <div class="participant-role">
+                        {% if user == contract.client %}
+                            Freelancer
+                        {% else %}
+                            Client
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            {% for message in chat_messages %}
+            <div class="message {% if message.sender == user %}sent{% endif %}">
+                <div class="message-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">{{ message.sender.username }}</span>
+                        <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
+                    </div>
+                    <p>{{ message.text }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                <i class="fas fa-comment-dots" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p>Hali xabarlar yo'q. Suhbatni boshlang!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-input">
+            <form method="POST" class="chat-form">
+                {% csrf_token %}
+                <input type="text" name="message_text" placeholder="Xabaringizni yozing..." required autocomplete="off">
+                <button type="submit">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contract Info Section -->
+    <div class="contract-info-section">
+        <div class="info-card">
+            <h3><i class="fas fa-file-contract"></i> Shartnoma ma'lumotlari</h3>
+            
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-project-diagram"></i> Loyiha</span>
+                <span class="info-value">{{ contract.project.title }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-money-bill-wave"></i> Kelishilgan narx</span>
+                <span class="info-value price">${{ contract.agreed_price }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-calendar-alt"></i> Boshlangan sana</span>
+                <span class="info-value">{{ contract.created_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            
+            {% if contract.finished_at %}
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-calendar-check"></i> Yakunlangan sana</span>
+                <span class="info-value">{{ contract.finished_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-info-circle"></i> Holat</span>
+                <span class="info-value">
+                    <span class="status-badge {{ contract.status }}">
+                        {{ contract.get_status_display }}
+                    </span>
+                </span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3><i class="fas fa-users"></i> Ishtirokchilar</h3>
+            
+            <div class="participants-grid">
+                <div class="participant-card client">
+                    <div class="participant-icon client">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="participant-details">
+                        <h4>{{ contract.client.get_full_name|default:contract.client.username }}</h4>
+                        <p><i class="fas fa-envelope"></i> {{ contract.client.email|default:"Email kiritilmagan" }}</p>
+                        <p><i class="fas fa-phone"></i> {{ contract.client.phone_number|default:"Telefon kiritilmagan" }}</p>
+                    </div>
+                </div>
+
+                <div class="participant-card freelancer">
+                    <div class="participant-icon freelancer">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <div class="participant-details">
+                        <h4>{{ contract.freelancer.get_full_name|default:contract.freelancer.username }}</h4>
+                        <p><i class="fas fa-envelope"></i> {{ contract.freelancer.email|default:"Email kiritilmagan" }}</p>
+                        <p><i class="fas fa-phone"></i> {{ contract.freelancer.phone_number|default:"Telefon kiritilmagan" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if review %}
+        <div class="info-card">
+            <h3><i class="fas fa-star"></i> Review</h3>
+            <div style="margin-bottom: 1rem;">
+                {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= review.rating %}
+                        <i class="fas fa-star" style="color: #ffc107;"></i>
+                    {% else %}
+                        <i class="far fa-star" style="color: var(--text-secondary);"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <p style="color: var(--text-primary); line-height: 1.6;">{{ review.comment }}</p>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem;">
+                <i class="far fa-clock"></i> {{ review.created_at|date:"d.m.Y H:i" }}
+            </p>
+        </div>
+        {% endif %}
+
+        <div class="action-buttons">
+            <a href="{% url 'project_detail' contract.project.id %}" class="btn btn-project">
+                <i class="fas fa-eye"></i> Loyihaga o'tish
+            </a>
+            {% if contract.status == 'active' and user == contract.client %}
+            <form method="POST" action="{% url 'finish_contract' contract.id %}" style="flex: 1;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning" onclick="return confirm('Loyihani yakunlashni tasdiqlaysizmi?')">
+                    <i class="fas fa-check-double"></i> Yakunlash
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-scroll to bottom of chat
+const chatMessages = document.getElementById('chatMessages');
+chatMessages.scrollTop = chatMessages.scrollHeight;
+
+// Auto-refresh chat every 5 seconds (optional)
+setTimeout(function() {
+    location.reload();
+}, 300000); // Refresh after 5 minutes of inactivity
+
+// Message input auto-focus
+document.querySelector('.chat-form input').focus();
+
+// Enter key to send message
+document.querySelector('.chat-form input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.querySelector('.chat-form button').click();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,846 @@
+{% extends 'base.html' %}
+
+{% block title %}Loyihalar - FreelanceHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .projects-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .projects-header h1 {
+        font-size: 2rem;
+        color: var(--text-primary);
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    .projects-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--dark-red);
+        border-radius: 2px;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(139, 30, 30, 0.3);
+    }
+
+    /* Search and Filter */
+    .search-section {
+        background: var(--darker-blue);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .search-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-group {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+    .search-group i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .search-group input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 3rem;
+        background: var(--dark-blue);
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-group input:focus {
+        outline: none;
+        border-color: var(--dark-red);
+        background: var(--darker-blue);
+    }
+
+    .search-group input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .filter-toggle {
+        background: var(--dark-blue);
+        border: 2px solid transparent;
+        color: var(--text-secondary);
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .filter-toggle:hover {
+        border-color: var(--dark-red);
+        color: var(--text-primary);
+    }
+
+    .advanced-filters {
+        margin-top: 1.5rem;
+        display: none;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        padding: 1.5rem;
+        background: var(--dark-blue);
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        width: 100%;
+    }
+
+    .advanced-filters.show {
+        display: grid;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .filter-group label i {
+        color: var(--dark-red);
+        font-size: 0.9rem;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 0.6rem;
+        background: var(--darker-blue);
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        outline: none;
+        border-color: var(--dark-red);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+
+    .btn-filter {
+        background: var(--dark-red);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+    }
+
+    .btn-filter:hover {
+        background: var(--accent-red);
+        transform: translateY(-2px);
+    }
+
+    .btn-reset {
+        background: var(--dark-blue);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+        padding: 0.6rem 1.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+    }
+
+    .btn-reset:hover {
+        border-color: var(--dark-red);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    /* Active Filters */
+    .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .filter-tag {
+        background: var(--dark-blue);
+        border: 1px solid var(--dark-red);
+        color: var(--text-primary);
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-tag i {
+        color: var(--dark-red);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .filter-tag i:hover {
+        color: var(--accent-red);
+        transform: scale(1.1);
+    }
+
+    .filter-tag a {
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Projects Grid */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .project-card {
+        background: var(--darker-blue);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        border-color: var(--dark-red);
+    }
+
+    .project-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--dark-blue), var(--dark-red));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .project-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .project-title {
+        font-size: 1.3rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-weight: 600;
+    }
+
+    .project-title:hover {
+        color: var(--dark-red);
+    }
+
+    .project-status {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: rgba(139, 30, 30, 0.2);
+        color: var(--dark-red);
+        border: 1px solid var(--dark-red);
+    }
+
+    .project-status.open {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+        border-color: #4caf50;
+    }
+
+    .project-status.in_progress {
+        background: rgba(255, 152, 0, 0.2);
+        color: #ff9800;
+        border-color: #ff9800;
+    }
+
+    .project-status.completed {
+        background: rgba(33, 150, 243, 0.2);
+        color: #2196f3;
+        border-color: #2196f3;
+    }
+
+    .project-status.cancelled {
+        background: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+        border-color: #f44336;
+    }
+
+    .project-description {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .project-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 1rem 0;
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .meta-item i {
+        color: var(--dark-red);
+        width: 20px;
+    }
+
+    .project-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .client-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .client-avatar {
+        width: 35px;
+        height: 35px;
+        background: var(--dark-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--dark-red);
+        overflow: hidden;
+    }
+
+    .client-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .client-avatar i {
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+    }
+
+    .client-name {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .bid-count {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .bid-count i {
+        color: var(--dark-red);
+        margin-right: 0.3rem;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        padding: 0.6rem 1rem;
+        background: var(--darker-blue);
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .page-link:hover,
+    .page-link.active {
+        background: var(--dark-red);
+        color: white;
+        border-color: var(--dark-red);
+    }
+
+    .page-link.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--darker-blue);
+        border-radius: 15px;
+        border: 1px solid var(--border-color);
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        color: var(--dark-red);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    /* Loading */
+    .loading {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .loading i {
+        font-size: 2rem;
+        color: var(--dark-red);
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .search-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-toggle {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .filter-actions {
+            flex-direction: column;
+        }
+        
+        .btn-filter,
+        .btn-reset {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .advanced-filters {
+            grid-template-columns: 1fr;
+        }
+        
+        .projects-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="projects-header">
+    <h1>Loyihalar</h1>
+    {% if user.is_authenticated and user.role == 'client' %}
+    <a href="{% url 'project_create' %}" class="btn-create">
+        <i class="fas fa-plus-circle"></i> Yangi loyiha
+    </a>
+    {% endif %}
+</div>
+
+<!-- Search Section -->
+<div class="search-section">
+    <form method="GET" action="{% url 'project_list' %}" class="search-form" id="searchForm">
+        <div class="search-group">
+            <i class="fas fa-search"></i>
+            <input type="text" name="q" id="searchInput" placeholder="Loyiha nomi yoki tavsifi bo'yicha qidirish..." value="{{ request.GET.q }}">
+        </div>
+        
+        <button type="submit" class="btn-primary" style="padding: 0.8rem 2rem;">
+            <i class="fas fa-search"></i> Qidirish
+        </button>
+        
+        <div class="filter-toggle" onclick="toggleFilters()">
+            <i class="fas fa-filter"></i> Filtrlar
+            <i class="fas fa-chevron-down" id="filterIcon"></i>
+        </div>
+
+        <div class="advanced-filters" id="advancedFilters">
+            <div class="filter-group">
+                <label><i class="fas fa-money-bill-wave"></i> Minimal budget ($)</label>
+                <input type="number" name="min_budget" id="minBudget" placeholder="Masalan: 100" min="0" step="1" value="{{ request.GET.min_budget }}">
+            </div>
+            
+            <div class="filter-group">
+                <label><i class="fas fa-money-bill-wave"></i> Maksimal budget ($)</label>
+                <input type="number" name="max_budget" id="maxBudget" placeholder="Masalan: 1000" min="0" step="1" value="{{ request.GET.max_budget }}">
+            </div>
+            
+            <div class="filter-group">
+                <label><i class="fas fa-sort"></i> Tartiblash</label>
+                <select name="sort" id="sortSelect">
+                    <option value="-created_at" {% if request.GET.sort == '-created_at' %}selected{% endif %}>Eng yangi</option>
+                    <option value="budget" {% if request.GET.sort == 'budget' %}selected{% endif %}>Budget (past)</option>
+                    <option value="-budget" {% if request.GET.sort == '-budget' %}selected{% endif %}>Budget (yuqori)</option>
+                    <option value="deadline" {% if request.GET.sort == 'deadline' %}selected{% endif %}>Deadline (yaqin)</option>
+                    <option value="-deadline" {% if request.GET.sort == '-deadline' %}selected{% endif %}>Deadline (uzoq)</option>
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">
+                    <i class="fas fa-check"></i> Qo'llash
+                </button>
+                <a href="{% url 'project_list' %}" class="btn-reset">
+                    <i class="fas fa-undo"></i> Tozalash
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Active Filters Display -->
+    {% if request.GET.q or request.GET.min_budget or request.GET.max_budget or request.GET.sort %}
+    <div class="active-filters">
+        {% if request.GET.q %}
+        <span class="filter-tag">
+            <i class="fas fa-search"></i> "{{ request.GET.q }}"
+            <a href="?{% if request.GET.min_budget %}&min_budget={{ request.GET.min_budget }}{% endif %}{% if request.GET.max_budget %}&max_budget={{ request.GET.max_budget }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                <i class="fas fa-times"></i>
+            </a>
+        </span>
+        {% endif %}
+        
+        {% if request.GET.min_budget %}
+        <span class="filter-tag">
+            <i class="fas fa-money-bill-wave"></i> Min: ${{ request.GET.min_budget }}
+            <a href="?{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.max_budget %}&max_budget={{ request.GET.max_budget }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                <i class="fas fa-times"></i>
+            </a>
+        </span>
+        {% endif %}
+        
+        {% if request.GET.max_budget %}
+        <span class="filter-tag">
+            <i class="fas fa-money-bill-wave"></i> Max: ${{ request.GET.max_budget }}
+            <a href="?{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.min_budget %}&min_budget={{ request.GET.min_budget }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                <i class="fas fa-times"></i>
+            </a>
+        </span>
+        {% endif %}
+        
+        {% if request.GET.sort %}
+        <span class="filter-tag">
+            <i class="fas fa-sort"></i> 
+            {% if request.GET.sort == '-created_at' %}Eng yangi
+            {% elif request.GET.sort == 'budget' %}Budget (past)
+            {% elif request.GET.sort == '-budget' %}Budget (yuqori)
+            {% elif request.GET.sort == 'deadline' %}Deadline (yaqin)
+            {% elif request.GET.sort == '-deadline' %}Deadline (uzoq)
+            {% endif %}
+            <a href="?{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.min_budget %}&min_budget={{ request.GET.min_budget }}{% endif %}{% if request.GET.max_budget %}&max_budget={{ request.GET.max_budget }}{% endif %}">
+                <i class="fas fa-times"></i>
+            </a>
+        </span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Projects Grid -->
+<div id="projectsContainer">
+    {% if page_obj %}
+    <div class="projects-grid">
+        {% for project in page_obj %}
+        <div class="project-card">
+            <div class="project-header">
+                <a href="{% url 'project_detail' project.id %}" class="project-title">
+                    {{ project.title }}
+                </a>
+                <span class="project-status {{ project.status }}">
+                    {{ project.get_status_display }}
+                </span>
+            </div>
+            
+            <p class="project-description">{{ project.description|truncatechars:150 }}</p>
+            
+            <div class="project-meta">
+                <div class="meta-item">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>${{ project.budget }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>{{ project.deadline|date:"d.m.Y" }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ project.created_at|date:"d.m.Y" }}</span>
+                </div>
+            </div>
+            
+            <div class="project-footer">
+                <div class="client-info">
+                    <div class="client-avatar">
+                        {% if project.client.profile_picture %}
+                            <img src="{{ project.client.profile_picture.url }}" alt="{{ project.client.username }}">
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <span class="client-name">{{ project.client.get_full_name|default:project.client.username }}</span>
+                </div>
+                <div class="bid-count">
+                    <i class="fas fa-gavel"></i>
+                    <span>{{ project.bids.count }} ta bid</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.min_budget %}&min_budget={{ request.GET.min_budget }}{% endif %}{% if request.GET.max_budget %}&max_budget={{ request.GET.max_budget }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="page-link" title="Birinchi sahifa">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.min_budget %}&min_budget={{ request.GET.min_budget }}{% endif %}{% if request.GET.max_budget %}&max_budget={{ request.GET.max_budget }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="page-link" title="Oldingi sahifa">
+            <i class="fas fa-angle-left"></i>
+        </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="page-link active">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.min_budget %}&min_budget={{ request.GET.min_budget }}{% endif %}{% if request.GET.max_budget %}&max_budget={{ request.GET.max_budget }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="page-link">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.min_budget %}&min_budget={{ request.GET.min_budget }}{% endif %}{% if request.GET.max_budget %}&max_budget={{ request.GET.max_budget }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="page-link" title="Keyingi sahifa">
+            <i class="fas fa-angle-right"></i>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.min_budget %}&min_budget={{ request.GET.min_budget }}{% endif %}{% if request.GET.max_budget %}&max_budget={{ request.GET.max_budget }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="page-link" title="Oxirgi sahifa">
+            <i class="fas fa-angle-double-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <h3>Hozircha loyihalar yo'q</h3>
+        <p>Birinchi bo'lib loyiha qo'shing yoki qidiruv so'zlarini o'zgartiring.</p>
+        {% if user.is_authenticated and user.role == 'client' %}
+        <a href="{% url 'project_create' %}" class="btn-primary">
+            <i class="fas fa-plus-circle"></i> Loyiha qo'shish
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleFilters() {
+    const filters = document.getElementById('advancedFilters');
+    const filterIcon = document.getElementById('filterIcon');
+    
+    filters.classList.toggle('show');
+    
+    if (filters.classList.contains('show')) {
+        filterIcon.classList.remove('fa-chevron-down');
+        filterIcon.classList.add('fa-chevron-up');
+    } else {
+        filterIcon.classList.remove('fa-chevron-up');
+        filterIcon.classList.add('fa-chevron-down');
+    }
+}
+
+// Preserve filter state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('min_budget') || urlParams.has('max_budget') || urlParams.has('sort')) {
+        document.getElementById('advancedFilters').classList.add('show');
+        document.getElementById('filterIcon').classList.remove('fa-chevron-down');
+        document.getElementById('filterIcon').classList.add('fa-chevron-up');
+    }
+});
+
+// Validate budget inputs
+document.getElementById('searchForm').addEventListener('submit', function(e) {
+    const minBudget = document.getElementById('minBudget').value;
+    const maxBudget = document.getElementById('maxBudget').value;
+    const submitBtn = this.querySelector('button[type="submit"]');
+    
+    // Loading state
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Qidirilmoqda...';
+    submitBtn.disabled = true;
+    
+    // Budget validation
+    if (minBudget && maxBudget) {
+        if (parseFloat(minBudget) > parseFloat(maxBudget)) {
+            e.preventDefault();
+            alert('Minimal budget maksimal budgetdan katta bo\'lishi mumkin emas!');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            return;
+        }
+    }
+    
+    if (minBudget && parseFloat(minBudget) < 0) {
+        e.preventDefault();
+        alert('Minimal budget 0 dan kichik bo\'lishi mumkin emas!');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        return;
+    }
+    
+    if (maxBudget && parseFloat(maxBudget) < 0) {
+        e.preventDefault();
+        alert('Maksimal budget 0 dan kichik bo\'lishi mumkin emas!');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        return;
+    }
+    
+    // Enable button after 10 seconds (in case of error)
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 10000);
+});
+
+// Clear filters
+document.querySelectorAll('.filter-tag a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = this.href;
+    });
+});
+
+// Enter key for search
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('searchForm').submit();
+    }
+});
+
+// Format budget inputs (faqat raqamlar)
+document.getElementById('minBudget').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+document.getElementById('maxBudget').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}

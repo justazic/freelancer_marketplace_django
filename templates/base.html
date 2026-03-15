@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Freelance Platform{% endblock %}</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a1929 0%, #0d2135 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        /* Dark Blue & Dark Red Theme */
+        :root {
+            --dark-blue: #0a1929;
+            --darker-blue: #051220;
+            --dark-red: #8b1e1e;
+            --darker-red: #6b1515;
+            --accent-blue: #1e3a5f;
+            --accent-red: #a82e2e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #2d4b6e;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--darker-blue);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid var(--dark-red);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo a {
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--dark-red);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+            background: rgba(139, 30, 30, 0.2);
+            border-bottom: 2px solid var(--dark-red);
+        }
+
+        /* User Menu with Avatar */
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 0.4rem 1.2rem 0.4rem 0.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            border-color: var(--dark-red);
+            background: var(--dark-blue);
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--dark-red);
+            background: var(--dark-blue);
+        }
+
+        .user-avatar-placeholder {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--dark-blue), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--dark-red);
+        }
+
+        .user-avatar-placeholder i {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .user-name {
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 120%;
+            background: var(--darker-blue);
+            min-width: 220px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 1px solid var(--dark-red);
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .dropdown-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--dark-blue), var(--accent-blue));
+            border-bottom: 1px solid var(--dark-red);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .dropdown-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--dark-red);
+        }
+
+        .dropdown-avatar-placeholder {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--dark-blue), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--dark-red);
+        }
+
+        .dropdown-avatar-placeholder i {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-user-info {
+            flex: 1;
+        }
+
+        .dropdown-user-name {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .dropdown-user-role {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .dropdown-user-role i {
+            color: var(--dark-red);
+            font-size: 0.7rem;
+            margin-right: 0.3rem;
+        }
+
+        .dropdown-content a,
+        .dropdown-content button {
+            color: var(--text-secondary);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(139, 30, 30, 0.1);
+        }
+
+        .dropdown-content a:last-child,
+        .dropdown-content button:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a i,
+        .dropdown-content button i {
+            width: 20px;
+            color: var(--dark-red);
+        }
+
+        .dropdown-content a:hover,
+        .dropdown-content button:hover {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .dropdown-content a:hover i,
+        .dropdown-content button:hover i {
+            color: white;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--dark-red), transparent);
+            margin: 0.5rem 0;
+        }
+
+        .user-menu:hover .dropdown-content {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Messages */
+        .messages {
+            margin-bottom: 2rem;
+        }
+
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .message.success {
+            background: rgba(46, 125, 50, 0.15);
+            border-left: 4px solid #2e7d32;
+            color: #a5d6a7;
+            border: 1px solid #2e7d32;
+        }
+
+        .message.error {
+            background: rgba(139, 30, 30, 0.15);
+            border-left: 4px solid var(--dark-red);
+            color: #ef9a9a;
+            border: 1px solid var(--dark-red);
+        }
+
+        .message i {
+            font-size: 1.2rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--dark-red);
+            color: white;
+            border-bottom: 3px solid var(--darker-red);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-red);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 30, 30, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--accent-blue);
+            color: white;
+            border-bottom: 3px solid var(--dark-blue);
+        }
+
+        .btn-secondary:hover {
+            background: #2d4b6e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 58, 95, 0.3);
+        }
+
+        .btn-danger {
+            background: #c62828;
+            color: white;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--darker-blue);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(139, 30, 30, 0.2);
+            border-color: var(--dark-red);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group label i {
+            color: var(--dark-red);
+            margin-right: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--dark-blue);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--dark-red);
+            background: var(--darker-blue);
+            box-shadow: 0 0 0 3px rgba(139, 30, 30, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--darker-blue);
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 2px solid var(--dark-red);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--dark-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-blue);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--dark-red);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-red);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+            }
+
+            .user-menu {
+                width: 100%;
+            }
+
+            .user-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .dropdown-content {
+                width: 100%;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="{% url 'project_list' %}">Freelance<span>Hub</span></a>
+            </div>
+            <div class="nav-links">
+                <a href="{% url 'project_list' %}" class="{% if request.resolver_match.url_name == 'project_list' %}active{% endif %}">
+                    <i class="fas fa-project-diagram"></i> Loyihalar
+                </a>
+                
+                {% if user.is_authenticated %}
+                    {% if user.role == 'freelancer' %}
+                        <a href="{% url 'my_bids' %}" class="{% if request.resolver_match.url_name == 'my_bids' %}active{% endif %}">
+                            <i class="fas fa-gavel"></i> Mening Bidlarim
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    
+                    <div class="user-menu">
+                        <button class="user-btn">
+                            {% if user.profile_picture and user.profile_picture.url %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="user-avatar">
+                            {% else %}
+                                <div class="user-avatar-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            <span class="user-name">{{ user.username }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        
+                        <div class="dropdown-content">
+                            <div class="dropdown-header">
+                                {% if user.profile_picture and user.profile_picture.url %}
+                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="dropdown-avatar">
+                                {% else %}
+                                    <div class="dropdown-avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="dropdown-user-info">
+                                    <div class="dropdown-user-name">
+                                        {{ user.get_full_name|default:user.username }}
+                                    </div>
+                                    <div class="dropdown-user-role">
+                                        <i class="fas fa-circle"></i> {{ user.get_role_display }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="{% url 'profile_update' %}">
+                                <i class="fas fa-user-edit"></i> Profil sozlamalari
+                            </a>
+                            <a href="{% url 'change_password' %}">
+                                <i class="fas fa-key"></i> Parolni o'zgartirish
+                            </a>
+                            
+                            {% if user.role == 'client' %}
+                            <a href="{% url 'project_create' %}">
+                                <i class="fas fa-plus-circle"></i> Yangi loyiha
+                            </a>
+                            {% endif %}
+                            
+                            <div class="dropdown-divider"></div>
+                            
+                            <form action="{% url 'logout' %}" method="POST" style="display: block;">
+                                {% csrf_token %}
+                                <button type="submit">
+                                    <i class="fas fa-sign-out-alt"></i> Chiqish
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt"></i> Kirish
+                    </a>
+                    <a href="{% url 'register' %}" class="btn-primary" style="padding: 0.5rem 1rem;">
+                        <i class="fas fa-user-plus"></i> Ro'yxatdan o'tish
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; {% now "Y" %} FreelanceHub. Barcha huquqlar himoyalangan.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                <i class="fas fa-heart" style="color: var(--dark-red);"></i>
+                Freelancerlar va Clientlar uchun ishonchli platforma
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-hide messages after 5 seconds
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(message => {
+                message.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.remove();
+                    }
+                }, 300);
+            });
+        }, 5000);
+
+        // Active link highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-links > a');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Dropdown menu on click for mobile
+        const userMenu = document.querySelector('.user-menu');
+        if (window.innerWidth <= 768) {
+            userMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.querySelector('.dropdown-content').classList.toggle('show');
+            });
+
+            document.addEventListener('click', function() {
+                const dropdown = document.querySelector('.dropdown-content.show');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // Add loading animation for forms
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yuborilmoqda...';
+                    submitBtn.disabled = true;
+                }
+            });
+        });
+
+        // Smooth scroll to top
+        const scrollToTop = () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        };
+
+        // Add scroll to top button if needed
+        window.addEventListener('scroll', function() {
+            if (!document.querySelector('.scroll-top')) {
+                if (window.pageYOffset > 300) {
+                    const btn = document.createElement('button');
+                    btn.className = 'scroll-top';
+                    btn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                    btn.style.cssText = `
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        background: var(--dark-red);
+                        color: white;
+                        width: 45px;
+                        height: 45px;
+                        border-radius: 50%;
+                        border: none;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.2rem;
+                        transition: all 0.3s ease;
+                        z-index: 999;
+                    `;
+                    btn.onclick = scrollToTop;
+                    document.body.appendChild(btn);
+                    
+                    btn.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-3px)';
+                        this.style.boxShadow = '0 5px 15px rgba(139, 30, 30, 0.4)';
+                    });
+                    
+                    btn.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = 'none';
+                    });
+                }
+            } else {
+                if (window.pageYOffset <= 300) {
+                    const btn = document.querySelector('.scroll-top');
+                    if (btn) btn.remove();
+                }
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

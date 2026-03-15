@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block title %}Ro'yxatdan o'tish - FreelanceHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .register-card {
+        background: var(--darker-blue);
+        border-radius: 15px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .register-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--dark-blue), var(--dark-red), var(--dark-blue));
+    }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .register-header h1 {
+        font-size: 2rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .register-header p {
+        color: var(--text-secondary);
+    }
+
+    .register-header span {
+        color: var(--dark-red);
+        font-weight: bold;
+    }
+
+    .contact-input {
+        position: relative;
+    }
+
+    .contact-input i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+    }
+
+    .contact-input input {
+        padding-left: 3rem;
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(139, 30, 30, 0.4);
+    }
+
+    .btn-register::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-register:hover::before {
+        left: 100%;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: var(--text-secondary);
+    }
+
+    .login-link a {
+        color: var(--dark-red);
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+
+    .error-message {
+        background: rgba(139, 30, 30, 0.2);
+        border-left: 4px solid var(--dark-red);
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: shake 0.5s ease;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    .info-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(30, 58, 95, 0.3);
+        border-radius: 5px;
+        border-left: 3px solid var(--accent-blue);
+    }
+
+    .info-text i {
+        color: var(--accent-blue);
+        margin-right: 0.5rem;
+    }
+
+    .input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--dark-red);
+        font-size: 1.1rem;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        background: var(--dark-blue);
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .input-group input:focus {
+        outline: none;
+        border-color: var(--dark-red);
+        background: var(--darker-blue);
+    }
+
+    .input-group label {
+        position: absolute;
+        left: 3rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
+        pointer-events: none;
+        font-size: 1rem;
+    }
+
+    .input-group input:focus ~ label,
+    .input-group input:valid ~ label {
+        top: 0;
+        left: 1rem;
+        font-size: 0.8rem;
+        padding: 0 0.5rem;
+        background: var(--dark-red);
+        border-radius: 3px;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h1>Freelance<span>Hub</span></h1>
+            <p>Yangi akkaunt yaratish</p>
+        </div>
+
+        {% if error %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle" style="color: var(--dark-red);"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" id="registerForm">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <i class="fas fa-phone-alt" style="left: 2.5rem; opacity: 0.5;"></i>
+                <input type="text" name="contact" id="contact" required>
+                <label for="contact">Email yoki Telefon raqam</label>
+            </div>
+
+            <button type="submit" class="btn-register">
+                <i class="fas fa-paper-plane"></i> Davom etish
+            </button>
+
+            <div class="info-text">
+                <i class="fas fa-info-circle"></i>
+                Email yoki Telefon raqamingizga tasdiqlash kodi yuboriladi
+            </div>
+
+            <div class="login-link">
+                Akkountingiz bormi?
+                <a href="{% url 'login' %}">
+                    <i class="fas fa-sign-in-alt"></i> Kirish
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const contact = document.getElementById('contact').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+?998?\d{9}$/;
+    
+    if (!emailRegex.test(contact) && !phoneRegex.test(contact)) {
+        e.preventDefault();
+        alert('Iltimos, to\'g\'ri email yoki telefon raqam kiriting!');
+    }
+});
+
+// Input animation
+document.querySelectorAll('.input-group input').forEach(input => {
+    input.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+    });
+    
+    input.addEventListener('blur', function() {
+        if (!this.value) {
+            this.parentElement.classList.remove('focused');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,534 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profilni tahrirlash - FreelanceHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 700px;
+        margin: 2rem auto;
+    }
+
+    .profile-card {
+        background: var(--darker-blue);
+        border-radius: 20px;
+        padding: 2.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .profile-header h1 {
+        font-size: 2rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-header p {
+        color: var(--text-secondary);
+    }
+
+    /* Avatar Section */
+    .avatar-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .avatar-wrapper {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin-bottom: 1rem;
+    }
+
+    .current-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--dark-red);
+        box-shadow: 0 5px 20px rgba(139, 30, 30, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .current-avatar:hover {
+        transform: scale(1.05);
+        border-color: var(--accent-red);
+    }
+
+    .avatar-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--dark-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid var(--dark-red);
+    }
+
+    .avatar-placeholder i {
+        font-size: 4rem;
+        color: var(--text-secondary);
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        background: var(--dark-red);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 2px solid white;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-overlay:hover {
+        background: var(--accent-red);
+        transform: scale(1.1);
+    }
+
+    .avatar-overlay i {
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .avatar-upload {
+        display: none;
+    }
+
+    .upload-info {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
+    .upload-info i {
+        color: var(--dark-red);
+        margin-right: 0.3rem;
+    }
+
+    .remove-avatar-btn {
+        background: none;
+        border: none;
+        color: #f44336;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .remove-avatar-btn:hover {
+        color: #d32f2f;
+        text-decoration: underline;
+    }
+
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .form-group label i {
+        color: var(--dark-red);
+        margin-right: 0.5rem;
+        width: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        background: var(--dark-blue);
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--dark-red);
+        background: var(--darker-blue);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .role-info {
+        background: linear-gradient(135deg, rgba(139, 30, 30, 0.1), rgba(30, 58, 95, 0.1));
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--dark-red);
+    }
+
+    .role-info p {
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .role-info i {
+        color: var(--dark-red);
+    }
+
+    .role-info strong {
+        color: var(--dark-red);
+    }
+
+    .btn-update {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(139, 30, 30, 0.4);
+    }
+
+    .info-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
+    /* Image Preview Modal */
+    .preview-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .preview-content {
+        background: var(--darker-blue);
+        padding: 2rem;
+        border-radius: 15px;
+        max-width: 500px;
+        text-align: center;
+        border: 2px solid var(--dark-red);
+    }
+
+    .preview-content img {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+        border: 4px solid var(--dark-red);
+    }
+
+    .preview-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .preview-btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .preview-btn.confirm {
+        background: var(--dark-red);
+        color: white;
+    }
+
+    .preview-btn.cancel {
+        background: var(--dark-blue);
+        color: var(--text-secondary);
+    }
+
+    .preview-btn:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <h1>Profil ma'lumotlari</h1>
+            <p>Shaxsiy ma'lumotlaringizni yangilang</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}" style="margin-bottom: 1.5rem;">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" id="profileForm">
+            {% csrf_token %}
+            
+            <!-- Avatar Section -->
+            <div class="avatar-section">
+                <div class="avatar-wrapper">
+                    {% if user.profile_picture and user.profile_picture.url %}
+                        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="current-avatar" id="avatarPreview">
+                    {% else %}
+                        <div class="avatar-placeholder" id="avatarPlaceholder">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <img src="" alt="Preview" class="current-avatar" id="avatarPreview" style="display: none;">
+                    {% endif %}
+                    
+                    <label for="profile_picture" class="avatar-overlay">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                </div>
+
+                <input type="file" name="profile_picture" id="profile_picture" class="avatar-upload" accept="image/*">
+
+                <div class="upload-info">
+                    <i class="fas fa-info-circle"></i>
+                    Rasm formati: JPG, PNG, GIF | Maksimal hajm: 2MB
+                </div>
+
+                {% if user.profile_picture %}
+                <button type="button" class="remove-avatar-btn" onclick="removeAvatar()">
+                    <i class="fas fa-trash-alt"></i> Rasmni o'chirish
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Role Info -->
+            <div class="role-info">
+                <p>
+                    <i class="fas fa-{% if user.role == 'client' %}briefcase{% else %}laptop-code{% endif %}"></i>
+                    Sizning rolingiz: <strong>{{ user.get_role_display }}</strong>
+                </p>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">
+                        <i class="fas fa-user"></i> Ism
+                    </label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                           value="{{ user.first_name|default:'' }}" placeholder="Ismingiz">
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">
+                        <i class="fas fa-user"></i> Familiya
+                    </label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                           value="{{ user.last_name|default:'' }}" placeholder="Familiyangiz">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-at"></i> Username
+                </label>
+                <input type="text" class="form-control" id="username" name="username" 
+                       value="{{ user.username }}" readonly disabled>
+                <p class="info-text">Usernameni o'zgartirib bo'lmaydi</p>
+            </div>
+
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i> Email
+                </label>
+                <input type="email" class="form-control" id="email" name="email" 
+                       value="{{ user.email|default:'' }}" placeholder="email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="phone_number">
+                    <i class="fas fa-phone"></i> Telefon
+                </label>
+                <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                       value="{{ user.phone_number|default:'' }}" placeholder="+998901234567">
+            </div>
+
+            <div class="form-group">
+                <label for="bio">
+                    <i class="fas fa-align-left"></i> Bio
+                </label>
+                <textarea class="form-control" id="bio" name="bio" 
+                          placeholder="O'zingiz haqingizda qisqacha...">{{ user.bio|default:'' }}</textarea>
+                <p class="info-text">O'zingiz, tajribangiz va qiziqishlaringiz haqida yozing</p>
+            </div>
+
+            <button type="submit" class="btn-update">
+                <i class="fas fa-save"></i> Saqlash
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="preview-modal" id="previewModal">
+    <div class="preview-content">
+        <img id="modalImage" src="" alt="Preview">
+        <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Rasmni saqlaysizmi?</h3>
+        <div class="preview-buttons">
+            <button class="preview-btn confirm" onclick="confirmImage()">
+                <i class="fas fa-check"></i> Ha
+            </button>
+            <button class="preview-btn cancel" onclick="closeModal()">
+                <i class="fas fa-times"></i> Yo'q
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Profile picture preview
+const profilePicInput = document.getElementById('profile_picture');
+const avatarPreview = document.getElementById('avatarPreview');
+const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+const previewModal = document.getElementById('previewModal');
+const modalImage = document.getElementById('modalImage');
+let selectedFile = null;
+
+profilePicInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Check file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Rasm hajmi 2MB dan kichik bo\'lishi kerak!');
+            this.value = '';
+            return;
+        }
+        
+        // Check file type
+        if (!file.type.match('image.*')) {
+            alert('Faqat rasm fayllari yuklash mumkin!');
+            this.value = '';
+            return;
+        }
+        
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            modalImage.src = e.target.result;
+            previewModal.style.display = 'flex';
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+function confirmImage() {
+    if (selectedFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (avatarPlaceholder) {
+                avatarPlaceholder.style.display = 'none';
+            }
+            avatarPreview.style.display = 'block';
+            avatarPreview.src = e.target.result;
+        }
+        reader.readAsDataURL(selectedFile);
+    }
+    closeModal();
+}
+
+function closeModal() {
+    previewModal.style.display = 'none';
+    if (!selectedFile) {
+        profilePicInput.value = '';
+    }
+}
+
+function removeAvatar() {
+    if (confirm('Profil rasmini o\'chirishni tasdiqlaysizmi?')) {
+        // Send AJAX request to remove avatar
+        fetch('/accounts/profile/remove-avatar/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+
+// Form validation
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone_number').value;
+    
+    // Simple email validation
+    if (email && !email.includes('@')) {
+        e.preventDefault();
+        alert('Iltimos, to\'g\'ri email kiriting!');
+    }
+    
+    // Simple phone validation (Uzbekistan format)
+    if (phone) {
+        const phoneRegex = /^\+?998?\d{9}$/;
+        if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+            e.preventDefault();
+            alert('Iltimos, to\'g\'ri telefon raqam kiriting! (+998901234567)');
+        }
+    }
+});
+</script>
+{% endblock %}

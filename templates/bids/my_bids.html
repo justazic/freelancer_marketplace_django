@@ -1,0 +1,554 @@
+{% extends 'base.html' %}
+
+{% block title %}Mening bidlarim - FreelanceHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bids-header {
+        margin-bottom: 2rem;
+    }
+
+    .bids-header h1 {
+        font-size: 2rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    .bids-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--dark-red);
+        border-radius: 2px;
+    }
+
+    .bids-header p {
+        color: var(--text-secondary);
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.6rem 1.5rem;
+        background: var(--darker-blue);
+        border: 1px solid var(--border-color);
+        border-radius: 25px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--dark-red);
+        color: var(--text-primary);
+    }
+
+    .filter-btn.active {
+        background: var(--dark-red);
+        color: white;
+        border-color: var(--dark-red);
+    }
+
+    .filter-btn i {
+        margin-right: 0.3rem;
+    }
+
+    .bids-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .bid-card {
+        background: var(--darker-blue);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bid-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        border-color: var(--dark-red);
+    }
+
+    .bid-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--dark-red), var(--accent-blue));
+    }
+
+    .bid-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+    }
+
+    .project-title {
+        font-size: 1.2rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .project-title:hover {
+        color: var(--dark-red);
+    }
+
+    .bid-status {
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .bid-status.pending {
+        background: rgba(255, 152, 0, 0.2);
+        color: #ff9800;
+        border: 1px solid #ff9800;
+    }
+
+    .bid-status.accepted {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+        border: 1px solid #4caf50;
+    }
+
+    .bid-status.rejected {
+        background: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+        border: 1px solid #f44336;
+    }
+
+    .client-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+    }
+
+    .client-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--dark-blue), var(--accent-blue));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--dark-red);
+    }
+
+    .client-avatar i {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+    }
+
+    .client-details {
+        flex: 1;
+    }
+
+    .client-name {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+
+    .client-role {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+    }
+
+    .bid-details {
+        background: var(--dark-blue);
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px dashed var(--border-color);
+    }
+
+    .detail-row:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .detail-label i {
+        color: var(--dark-red);
+        width: 20px;
+        margin-right: 0.3rem;
+    }
+
+    .detail-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .detail-value.price {
+        color: var(--dark-red);
+        font-size: 1.1rem;
+    }
+
+    .bid-message {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--darker-blue);
+        border-radius: 8px;
+        border-left: 3px solid var(--dark-red);
+    }
+
+    .project-deadline {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .project-deadline i {
+        color: var(--dark-red);
+    }
+
+    .deadline-urgent {
+        color: #f44336;
+        font-weight: 600;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .bid-date {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    .bid-date i {
+        margin-right: 0.3rem;
+        color: var(--dark-red);
+    }
+
+    .btn-view {
+        background: var(--accent-blue);
+        color: white;
+        padding: 0.5rem 1.2rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-view:hover {
+        background: var(--dark-red);
+        transform: translateX(3px);
+    }
+
+    .btn-view i {
+        font-size: 0.8rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--darker-blue);
+        border-radius: 15px;
+        border: 1px solid var(--border-color);
+        grid-column: 1 / -1;
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        color: var(--dark-red);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    .empty-state .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 2rem;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: var(--darker-blue);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: var(--dark-red);
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .bids-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bids-header">
+    <h1>Mening bidlarim</h1>
+    <p>Siz yuborgan barcha bidlar ro'yxati</p>
+</div>
+
+<!-- Stats -->
+{% if bids %}
+<div class="stats-row">
+    <div class="stat-item">
+        <div class="stat-value">{{ bids.count }}</div>
+        <div class="stat-label">Jami bidlar</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ bids.pending.count }}</div>
+        <div class="stat-label">Kutilayotgan</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ bids.accepted.count }}</div>
+        <div class="stat-label">Qabul qilingan</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ bids.rejected.count }}</div>
+        <div class="stat-label">Rad etilgan</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+    <button class="filter-btn active" onclick="filterBids('all')">
+        <i class="fas fa-list"></i> Barchasi
+    </button>
+    <button class="filter-btn" onclick="filterBids('pending')">
+        <i class="fas fa-clock"></i> Kutilayotgan
+    </button>
+    <button class="filter-btn" onclick="filterBids('accepted')">
+        <i class="fas fa-check-circle"></i> Qabul qilingan
+    </button>
+    <button class="filter-btn" onclick="filterBids('rejected')">
+        <i class="fas fa-times-circle"></i> Rad etilgan
+    </button>
+</div>
+
+<!-- Bids Grid -->
+<div class="bids-grid">
+    {% if bids %}
+        {% for bid in bids %}
+        <div class="bid-card" data-status="{{ bid.status }}">
+            <div class="bid-header">
+                <a href="{% url 'project_detail' bid.project.id %}" class="project-title">
+                    {{ bid.project.title }}
+                </a>
+                <span class="bid-status {{ bid.status }}">
+                    {{ bid.get_status_display }}
+                </span>
+            </div>
+
+            <div class="client-info">
+                <div class="client-avatar">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="client-details">
+                    <div class="client-name">{{ bid.project.client.username }}</div>
+                    <div class="client-role">Client</div>
+                </div>
+            </div>
+
+            <div class="bid-details">
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-money-bill-wave"></i> Sizning narx
+                    </span>
+                    <span class="detail-value price">${{ bid.price }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-coins"></i> Loyiha budgeti
+                    </span>
+                    <span class="detail-value">${{ bid.project.budget }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-calendar-alt"></i> Deadline
+                    </span>
+                    <span class="detail-value">{{ bid.project.deadline|date:"d.m.Y" }}</span>
+                </div>
+            </div>
+
+            {% if bid.message %}
+            <div class="bid-message">
+                <i class="fas fa-quote-left" style="color: var(--dark-red); opacity: 0.5; margin-right: 0.5rem;"></i>
+                {{ bid.message|truncatechars:120 }}
+            </div>
+            {% endif %}
+
+            <div class="project-deadline">
+                <i class="fas fa-hourglass-half"></i>
+                Deadline:
+                {% with days_left=bid.project.deadline|timeuntil %}
+                    {% if "day" in days_left %}
+                        <span class="{% if days_left|slice:":1" < '3' %}deadline-urgent{% endif %}">
+                            {{ days_left }} qoldi
+                        </span>
+                    {% else %}
+                        <span>{{ days_left }} qoldi</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="card-footer">
+                <span class="bid-date">
+                    <i class="far fa-clock"></i> {{ bid.created_at|date:"d.m.Y H:i" }}
+                </span>
+                <a href="{% url 'project_detail' bid.project.id %}" class="btn-view">
+                    Loyihani ko'rish <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-gavel"></i>
+        <h3>Hali bidlaringiz yo'q</h3>
+        <p>Loyihalarni ko'rib chiqing va birinchi biddingizni yuboring!</p>
+        <a href="{% url 'project_list' %}" class="btn-primary">
+            <i class="fas fa-search"></i> Loyihalarni ko'rish
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterBids(status) {
+    // Update active tab
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Filter bids
+    const bids = document.querySelectorAll('.bid-card');
+    bids.forEach(bid => {
+        if (status === 'all' || bid.dataset.status === status) {
+            bid.style.display = 'block';
+        } else {
+            bid.style.display = 'none';
+        }
+    });
+    
+    // Show empty state message if no bids visible
+    const visibleBids = document.querySelectorAll('.bid-card[style="display: block"]').length;
+    const emptyState = document.querySelector('.empty-state');
+    
+    if (visibleBids === 0 && !emptyState) {
+        const grid = document.querySelector('.bids-grid');
+        const noResults = document.createElement('div');
+        noResults.className = 'empty-state';
+        noResults.innerHTML = `
+            <i class="fas fa-filter"></i>
+            <h3>Hech narsa topilmadi</h3>
+            <p>Ushbu filtr bo'yicha bidlar mavjud emas.</p>
+        `;
+        grid.appendChild(noResults);
+    } else if (visibleBids > 0 && emptyState) {
+        emptyState.remove();
+    }
+}
+
+// Calculate days left function
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.project-deadline').forEach(el => {
+        const dateStr = el.textContent.match(/\d{2}\.\d{2}\.\d{4}/);
+        if (dateStr) {
+            const deadline = new Date(dateStr[0].split('.').reverse().join('-'));
+            const today = new Date();
+            const diffTime = deadline - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 3 && diffDays > 0) {
+                el.querySelector('.deadline-urgent').classList.add('urgent');
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

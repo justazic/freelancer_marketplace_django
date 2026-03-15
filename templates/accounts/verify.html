@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block title %}Tasdiqlash - FreelanceHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verify-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .verify-card {
+        background: var(--darker-blue);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .verify-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(139, 30, 30, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(139, 30, 30, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(139, 30, 30, 0); }
+    }
+
+    .verify-icon i {
+        font-size: 3rem;
+        color: white;
+    }
+
+    .verify-card h1 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        font-size: 2rem;
+    }
+
+    .verify-card p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    .contact-info {
+        background: var(--dark-blue);
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        display: inline-block;
+        border-left: 3px solid var(--dark-red);
+        font-weight: 600;
+        color: var(--dark-red);
+        font-size: 1.1rem;
+    }
+
+    .otp-input-group {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .otp-input {
+        width: 55px;
+        height: 65px;
+        background: var(--dark-blue);
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .otp-input:focus {
+        outline: none;
+        border-color: var(--dark-red);
+        box-shadow: 0 0 0 3px rgba(139, 30, 30, 0.2);
+        transform: scale(1.05);
+    }
+
+    .btn-verify {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, var(--dark-red), var(--accent-red));
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    .btn-verify:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(139, 30, 30, 0.4);
+    }
+
+    .btn-verify:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .error-message {
+        background: rgba(139, 30, 30, 0.2);
+        border-left: 4px solid var(--dark-red);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #ef9a9a;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+        .otp-input-group {
+            gap: 0.5rem;
+        }
+        
+        .otp-input {
+            width: 45px;
+            height: 55px;
+            font-size: 1.5rem;
+        }
+        
+        .verify-card {
+            padding: 2rem 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verify-container">
+    <div class="verify-card">
+        <div class="verify-icon">
+            <i class="fas fa-envelope-open-text"></i>
+        </div>
+        
+        <h1>Tasdiqlash kodi</h1>
+        <p>Email yoki telefon raqamingizga yuborilgan 6 xonali kodni kiriting</p>
+        
+        <div class="contact-info">
+            <i class="fas fa-{% if request.session.email %}envelope{% else %}phone-alt{% endif %}"></i>
+            {{ request.session.email|default:request.session.phone_number }}
+        </div>
+
+        {% if error %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" id="verifyForm">
+            {% csrf_token %}
+            
+            <!-- Bitta input ga yig'ish (oddiy usul) -->
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <input type="text" 
+                       name="code" 
+                       class="form-control" 
+                       placeholder="6 xonali kodni kiriting" 
+                       maxlength="6" 
+                       pattern="[0-9]{6}" 
+                       inputmode="numeric" 
+                       autofocus
+                       style="text-align: center; font-size: 1.5rem; letter-spacing: 5px; padding: 1rem;">
+            </div>
+
+            <!-- YOKI 6 ta alohida input (murakkabroq) -->
+            <!-- <div class="otp-input-group">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="0">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="1">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="2">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="3">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="4">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="5">
+            </div>
+            <input type="hidden" name="code" id="hiddenCode"> -->
+
+            <button type="submit" class="btn-verify">
+                <i class="fas fa-check-circle"></i> Tasdiqlash
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Agar 6 ta alohida input kerak bo'lsa -->
+<script>
+/* 6 ta alohida input uchun kod (kerak bo'lsa ishlating) */
+document.addEventListener('DOMContentLoaded', function() {
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const hiddenCode = document.getElementById('hiddenCode');
+    
+    if (otpInputs.length > 0) {
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                if (this.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                
+                // Update hidden input
+                const code = Array.from(otpInputs).map(i => i.value).join('');
+                hiddenCode.value = code;
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const paste = e.clipboardData.getData('text');
+                const digits = paste.replace(/\D/g, '').split('');
+                
+                digits.forEach((digit, i) => {
+                    if (i < otpInputs.length) {
+                        otpInputs[i].value = digit;
+                    }
+                });
+                
+                if (digits.length === otpInputs.length) {
+                    otpInputs[otpInputs.length - 1].focus();
+                }
+                
+                const code = Array.from(otpInputs).map(i => i.value).join('');
+                hiddenCode.value = code;
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
