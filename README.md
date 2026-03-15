@@ -30,9 +30,9 @@ Ushbu platforma freelancerlar va mijozlar o'rtasida ish jarayonini avtomatlashti
 * username: client1
 * password: client123
 
-**Freelancer**
-*username: freelancer1
-*password: freelancer123
+* **Freelancer**
+* username: freelancer1
+* password: freelancer123
 
 ---
 

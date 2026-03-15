@@ -619,6 +619,31 @@
     .mt-2 {
         margin-top: 0.5rem;
     }
+
+    /* Error Message */
+    .error-message {
+        background: rgba(244, 67, 54, 0.1);
+        border-left: 4px solid #f44336;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        color: #f44336;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .success-message {
+        background: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4caf50;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        color: #4caf50;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -706,6 +731,16 @@
 
     <!-- Sidebar -->
     <div class="project-sidebar">
+        <!-- Messages from Django -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
+                    <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
         <!-- Action Card -->
         <div class="action-card">
             <h3>
@@ -725,17 +760,19 @@
                 {% if user.is_authenticated %}
                     {% if user.role == 'freelancer' %}
                         {% if not user_has_bid %}
+                        <!-- BID FORM - Freelancer uchun -->
                         <form method="POST" action="{% url 'bid_create' project.id %}" class="bid-form">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label for="price"><i class="fas fa-money-bill-wave"></i> Narx ($)</label>
                                 <input type="number" name="price" id="price" class="form-control" min="0.01" step="0.01" placeholder="Masalan: 500" required>
+                                <small style="color: var(--text-secondary);">Loyiha budgeti: ${{ project.budget }}</small>
                             </div>
                             <div class="form-group">
                                 <label for="message"><i class="fas fa-comment"></i> Xabar</label>
-                                <textarea name="message" id="message" class="form-control" placeholder="Nima uchun aynan sizni tanlash kerak?" required></textarea>
+                                <textarea name="message" id="message" class="form-control" placeholder="Nima uchun aynan sizni tanlash kerak? Tajribangiz va motivatsiyangiz haqida yozing..." required></textarea>
                             </div>
-                            <button type="submit" class="btn-submit">
+                            <button type="submit" class="btn-submit" onclick="this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Yuborilmoqda...'; this.disabled=true; this.form.submit();">
                                 <i class="fas fa-paper-plane"></i> Bid yuborish
                             </button>
                         </form>
@@ -743,6 +780,7 @@
                         <div class="contract-info">
                             <p><i class="fas fa-check-circle" style="color: #4caf50;"></i> Siz bu loyihaga bid yuborgansiz</p>
                             <p><i class="fas fa-clock"></i> Javob kutilmoqda</p>
+                            <p><small>Taklifingiz: ${{ user_bid_price }}</small></p>
                         </div>
                         {% endif %}
 
@@ -769,7 +807,7 @@
                     {% endif %}
                 {% else %}
                     <div class="contract-info">
-                        <p><i class="fas fa-info-circle"></i> Bid qo'yish uchun </p>
+                        <p><i class="fas fa-info-circle"></i> Bid qo'yish uchun tizimga kiring</p>
                         <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary" style="display: block; text-align: center; margin-top: 0.5rem;">
                             <i class="fas fa-sign-in-alt"></i> Kirish
                         </a>
@@ -786,7 +824,7 @@
 
                 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                     <a href="{% url 'contract_detail' contract.id %}" class="btn btn-primary" style="flex: 1;">
-                        <i class="fas fa-comments"></i> Chat
+                        <i class="fas fa-comments"></i> Chatga o'tish
                     </a>
                 </div>
 
@@ -808,7 +846,7 @@
                     <p><i class="fas fa-calendar-check"></i> <strong>Yakunlangan:</strong> {{ contract.finished_at|date:"d.m.Y" }}</p>
                 </div>
 
-                <!-- REVIEW FORM - MUHIM QISM! -->
+                <!-- REVIEW FORM - Client uchun -->
                 {% if user == project.client and not contract.review %}
                 <div class="review-form">
                     <h4 style="color: var(--text-primary); margin-bottom: 1rem; text-align: center;">
@@ -861,10 +899,10 @@
             {% endif %}
         </div>
 
-        <!-- Bids List -->
+        <!-- Bids List - Faqat open loyihalar uchun -->
         {% if project.status == 'open' and bids %}
         <div class="action-card">
-            <h3><i class="fas fa-list"></i> Bids ({{ bids.count }})</h3>
+            <h3><i class="fas fa-list"></i> Barcha bidlar ({{ bids.count }})</h3>
             <div class="bids-list">
                 {% for bid in bids %}
                 <div class="bid-item">
@@ -912,7 +950,11 @@
                         <div class="bid-header">
                             <div class="bid-freelancer">
                                 <div class="freelancer-avatar">
-                                    <i class="fas fa-user"></i>
+                                    {% if bid.freelancer.profile_picture %}
+                                        <img src="{{ bid.freelancer.profile_picture.url }}" alt="{{ bid.freelancer.username }}">
+                                    {% else %}
+                                        <i class="fas fa-user"></i>
+                                    {% endif %}
                                 </div>
                                 <span>{{ bid.freelancer.username }}</span>
                             </div>
@@ -931,6 +973,7 @@
 <!-- Star Rating JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Star rating functionality
     const stars = document.querySelectorAll('.star-rating i');
     const ratingInput = document.getElementById('ratingInput');
     const ratingValue = document.querySelector('#ratingValue span');
@@ -954,11 +997,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 ratingInput.value = rating;
                 ratingValue.textContent = rating;
                 highlightStars(rating);
-                
-                // Enable submit button
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                }
             });
         });
         
@@ -983,6 +1021,27 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!ratingInput.value) {
                 e.preventDefault();
                 alert('Iltimos, baho bering!');
+            }
+        });
+    }
+    
+    // Bid form validation
+    const bidForm = document.querySelector('.bid-form');
+    if (bidForm) {
+        bidForm.addEventListener('submit', function(e) {
+            const price = document.getElementById('price');
+            const message = document.getElementById('message');
+            
+            if (!price.value || parseFloat(price.value) <= 0) {
+                e.preventDefault();
+                alert('Iltimos, to\'g\'ri narx kiriting!');
+                return;
+            }
+            
+            if (!message.value.trim()) {
+                e.preventDefault();
+                alert('Iltimos, xabar yozing!');
+                return;
             }
         });
     }
