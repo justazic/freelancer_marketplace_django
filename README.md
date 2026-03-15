@@ -24,5 +24,9 @@ Ushbu platforma freelancerlar va mijozlar o'rtasida ish jarayonini avtomatlashti
 * **Dashboard:** Aktiv shartnomalar, yuborilgan takliflar va o'rtacha reytingni kuzatish.
 * **Chat tizimi:** Shartnoma doirasida mijoz bilan muloqot qilish.
 
+
+### Test Users:
+
+
 ---
 
