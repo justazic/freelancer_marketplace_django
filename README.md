@@ -176,35 +176,6 @@ Project: completed
 
 Review yozish imkoniyati
 
-📁 Papkalar tuzilishi
-text
-freelance_marketplace/
-├── manage.py
-├── requirements.txt
-├── .env.example
-├── freelance/              # Asosiy loyiha
-│   ├── settings.py
-│   ├── urls.py
-│   └── ...
-├── accounts/                # Foydalanuvchi moduli
-│   ├── models.py
-│   ├── views.py
-│   └── ...
-├── projects/                # Loyihalar
-│   ├── models.py
-│   ├── views.py
-│   └── ...
-├── bids/                    # Takliflar
-├── contracts/               # Shartnomalar
-├── reviews/                 # Baholar
-├── templates/               # HTML shablonlar
-│   ├── base.html
-│   ├── accounts/
-│   ├── projects/
-│   └── ...
-└── static/                  # CSS, JS fayllar
-
-
 🔍 Qo'shimcha funksiyalar
 Qidiruv: Loyihalarni title bo'yicha qidirish
 
